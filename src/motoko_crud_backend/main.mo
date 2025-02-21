@@ -29,12 +29,12 @@ actor User {
     return user_id;
   };
 
-  public func read(user_id : UserId) : async ?Users {
+  public query func read(user_id : UserId) : async ?Users {
     let result = Trie.find(users, key(user_id), Nat32.equal);
     return result;
   };
 
-  public func readAll() : async [(UserId, Users)] {
+  public query func readAll() : async [(UserId, Users)] {
     let result = Iter.toArray(Trie.iter(users));
     return result;
   };
@@ -56,9 +56,27 @@ actor User {
     return data;
   };
 
+  public func delete(user_id : UserId) : async Bool {
+    let result = Trie.find(users, key(user_id), Nat32.equal);
+    
+    let data = Option.isSome(result);
+
+    if(data) {
+      users := Trie.replace(
+        users,
+        key(user_id),
+        Nat32.equal,
+        null,
+      ).0;
+    };
+
+    return data;
+  };
+
   private func key(x : UserId) : Trie.Key<UserId> {
     return {hash = x; key = x};
   };
+
 
 };
 
